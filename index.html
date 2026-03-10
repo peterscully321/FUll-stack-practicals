@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <form id="registrationForm" class="form">
+            <h2>Create Account</h2>
+            
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <div class="input-container">
+                    <i class="fa-regular fa-user"></i>
+                    <input type="text" id="name" placeholder="John Doe" autocomplete="off">
+                    <i class="fa-solid fa-circle-check success-icon"></i>
+                    <i class="fa-solid fa-circle-exclamation error-icon"></i>
+                </div>
+                <small class="error-msg"></small>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="input-container">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="text" id="email" placeholder="john@example.com" autocomplete="off">
+                    <i class="fa-solid fa-circle-check success-icon"></i>
+                    <i class="fa-solid fa-circle-exclamation error-icon"></i>
+                </div>
+                <small class="error-msg"></small>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <div class="input-container">
+                    <i class="fa-solid fa-phone"></i>
+                    <input type="text" id="phone" placeholder="1234567890" autocomplete="off">
+                    <i class="fa-solid fa-circle-check success-icon"></i>
+                    <i class="fa-solid fa-circle-exclamation error-icon"></i>
+                </div>
+                <small class="error-msg"></small>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-container">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" placeholder="Create a strong password">
+                    <i class="fa-regular fa-eye-slash toggle-password" id="togglePassword"></i>
+                </div>
+                
+                <div class="password-strength">
+                    <div class="strength-bar-container">
+                        <div class="strength-bar" id="strengthBar"></div>
+                    </div>
+                    <span class="strength-text" id="strengthText">Weak</span>
+                </div>
+                <small class="error-msg"></small>
+            </div>
+
+            <button type="submit" id="submitBtn">Sign Up</button>
+            <div id="successMessage" class="success-message">Registration successful!</div>
+        </form>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
