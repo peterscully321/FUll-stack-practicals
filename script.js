@@ -1,206 +1,115 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("registrationForm");
-    const nameInput = document.getElementById("name");
-    const emailInput = document.getElementById("email");
-    const phoneInput = document.getElementById("phone");
-    const passwordInput = document.getElementById("password");
-    const togglePassword = document.getElementById("togglePassword");
-    const strengthBar = document.getElementById("strengthBar");
-    const strengthText = document.getElementById("strengthText");
-    const passwordStrengthContainer = document.querySelector(".password-strength");
-    const successMessage = document.getElementById("successMessage");
+const CITIES = [
+  { name: 'Tokyo', id: 'tokyo', lat: 35.6895, lon: 139.6917 },
+  { name: 'London', id: 'london', lat: 51.5074, lon: -0.1278 },
+  { name: 'New York', id: 'new-york', lat: 40.7128, lon: -74.0060 }
+];
 
-    // Utilities
-    const setError = (input, message) => {
-        const formControl = input.closest(".form-group");
-        const errorMsg = formControl.querySelector(".error-msg");
-        formControl.className = "form-group error";
-        errorMsg.innerText = message;
-    };
+// Map Open-Meteo weather codes to descriptive text and emojis
+const WEATHER_CODES = {
+  0: { description: 'Clear sky', icon: '☀️' },
+  1: { description: 'Mainly clear', icon: '🌤️' },
+  2: { description: 'Partly cloudy', icon: '⛅' },
+  3: { description: 'Overcast', icon: '☁️' },
+  45: { description: 'Fog', icon: '🌫️' },
+  48: { description: 'Depositing rime fog', icon: '🌫️' },
+  51: { description: 'Light drizzle', icon: '🌧️' },
+  53: { description: 'Moderate drizzle', icon: '🌧️' },
+  55: { description: 'Dense drizzle', icon: '🌧️' },
+  56: { description: 'Light freezing drizzle', icon: '🌧️❄️' },
+  57: { description: 'Dense freezing drizzle', icon: '🌧️❄️' },
+  61: { description: 'Slight rain', icon: '🌦️' },
+  63: { description: 'Moderate rain', icon: '🌧️' },
+  65: { description: 'Heavy rain', icon: '🌧️' },
+  66: { description: 'Light freezing rain', icon: '🌧️❄️' },
+  67: { description: 'Heavy freezing rain', icon: '🌧️❄️' },
+  71: { description: 'Slight snow', icon: '❄️' },
+  73: { description: 'Moderate snow', icon: '❄️' },
+  75: { description: 'Heavy snow', icon: '❄️' },
+  77: { description: 'Snow grains', icon: '🌨️' },
+  80: { description: 'Slight rain showers', icon: '🌦️' },
+  81: { description: 'Moderate rain showers', icon: '🌧️' },
+  82: { description: 'Violent rain showers', icon: '🌧️' },
+  85: { description: 'Slight snow showers', icon: '🌨️' },
+  86: { description: 'Heavy snow showers', icon: '🌨️' },
+  95: { description: 'Thunderstorm', icon: '⛈️' },
+  96: { description: 'Thunderstorm with slight hail', icon: '⛈️🌨️' },
+  99: { description: 'Thunderstorm with heavy hail', icon: '⛈️🌨️' },
+};
 
-    const setSuccess = (input) => {
-        const formControl = input.closest(".form-group");
-        formControl.className = "form-group success";
-    };
+const getWeatherInfo = (code) => {
+  return WEATHER_CODES[code] || { description: 'Unknown conditions', icon: '🌡️' };
+};
 
-    const isValidEmail = (email) => {
-        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return re.test(String(email).toLowerCase());
-    };
+const loadingEl = document.getElementById('loading');
+const errorContainerEl = document.getElementById('error-container');
+const errorMessageEl = document.getElementById('error-message');
+const weatherContainerEl = document.getElementById('weather-container');
+const retryBtn = document.getElementById('retry-btn');
 
-    const isValidPhone = (phone) => {
-        const re = /^\d{10}$/; // Simple 10 digit validation
-        return re.test(phone);
-    };
+async function fetchWeatherData() {
+  // Reset UI states
+  loadingEl.classList.remove('hidden');
+  errorContainerEl.classList.add('hidden');
+  weatherContainerEl.classList.add('hidden');
+  weatherContainerEl.innerHTML = '';
 
-    // Validation functions
-    const validateName = () => {
-        const value = nameInput.value.trim();
-        if (value === "") {
-            setError(nameInput, "Name cannot be blank");
-            return false;
-        } else if (value.length < 3) {
-            setError(nameInput, "Name must be at least 3 characters");
-            return false;
-        } else {
-            setSuccess(nameInput);
-            return true;
+  try {
+    // Artificial delay to demonstrate the loading spinner smoothly
+    await new Promise(resolve => setTimeout(resolve, 600));
+
+    // Create array of fetch promises for Promise.all
+    const fetchPromises = CITIES.map(city => {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current_weather=true`;
+      
+      return fetch(url).then(response => {
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data for ${city.name}`);
         }
-    };
-
-    const validateEmail = () => {
-        const value = emailInput.value.trim();
-        if (value === "") {
-            setError(emailInput, "Email cannot be blank");
-            return false;
-        } else if (!isValidEmail(value)) {
-            setError(emailInput, "Not a valid email");
-            return false;
-        } else {
-            setSuccess(emailInput);
-            return true;
-        }
-    };
-
-    const validatePhone = () => {
-        const value = phoneInput.value.trim();
-        if (value === "") {
-            setError(phoneInput, "Phone number cannot be blank");
-            return false;
-        } else if (!isValidPhone(value)) {
-            setError(phoneInput, "Enter a valid 10-digit phone number");
-            return false;
-        } else {
-            setSuccess(phoneInput);
-            return true;
-        }
-    };
-
-    const validatePassword = () => {
-        const value = passwordInput.value;
-        if (value === "") {
-            setError(passwordInput, "Password cannot be blank");
-            passwordStrengthContainer.style.display = "none";
-            return false;
-        } else {
-            setSuccess(passwordInput);
-            updatePasswordStrength(value);
-            return true;
-        }
-    };
-
-    const updatePasswordStrength = (password) => {
-        passwordStrengthContainer.style.display = "flex";
-        let strength = 0;
-        
-        if (password.length >= 8) strength++; // length
-        if (password.match(/[a-z]+/)) strength++; // lowercase
-        if (password.match(/[A-Z]+/)) strength++; // uppercase
-        if (password.match(/[0-9]+/)) strength++; // number
-        if (password.match(/[$@#&!]+/)) strength++; // special char
-
-        switch (strength) {
-            case 0:
-            case 1:
-                strengthBar.style.width = "20%";
-                strengthBar.style.backgroundColor = "#e74c3c";
-                strengthText.innerText = "Too Weak";
-                strengthText.style.color = "#e74c3c";
-                break;
-            case 2:
-                strengthBar.style.width = "40%";
-                strengthBar.style.backgroundColor = "#f39c12";
-                strengthText.innerText = "Weak";
-                strengthText.style.color = "#f39c12";
-                break;
-            case 3:
-                strengthBar.style.width = "60%";
-                strengthBar.style.backgroundColor = "#f1c40f";
-                strengthText.innerText = "Medium";
-                strengthText.style.color = "#f1c40f";
-                break;
-            case 4:
-                strengthBar.style.width = "80%";
-                strengthBar.style.backgroundColor = "#3498db";
-                strengthText.innerText = "Strong";
-                strengthText.style.color = "#3498db";
-                break;
-            case 5:
-                strengthBar.style.width = "100%";
-                strengthBar.style.backgroundColor = "#2ecc71";
-                strengthText.innerText = "Very Strong";
-                strengthText.style.color = "#2ecc71";
-                break;
-        }
-    };
-
-    // Event Listeners for real-time validation
-    nameInput.addEventListener("input", validateName);
-    emailInput.addEventListener("input", validateEmail);
-    phoneInput.addEventListener("input", validatePhone);
-    passwordInput.addEventListener("input", validatePassword);
-
-    // Toggle Password Visibility
-    togglePassword.addEventListener("click", () => {
-        const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
-        passwordInput.setAttribute("type", type);
-        
-        // Toggle icon
-        if (type === "text") {
-            togglePassword.classList.remove("fa-eye-slash");
-            togglePassword.classList.add("fa-eye");
-            togglePassword.style.color = "#00d2ff";
-        } else {
-            togglePassword.classList.remove("fa-eye");
-            togglePassword.classList.add("fa-eye-slash");
-            togglePassword.style.color = "#aaa";
-        }
+        return response.json();
+      });
     });
 
-    // Form Submit
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
+    // Execute all API requests simultaneously
+    const results = await Promise.all(fetchPromises);
 
-        const isNameValid = validateName();
-        const isEmailValid = validateEmail();
-        const isPhoneValid = validatePhone();
-        const isPasswordValid = validatePassword();
-        
-        // Additional check for strong password
-        const passwordVal = passwordInput.value;
-        const isPasswordStrongEnough = passwordVal.length >= 8 && /[A-Z]/.test(passwordVal) && /[0-9]/.test(passwordVal);
-
-        if (!isPasswordStrongEnough && isPasswordValid) {
-             setError(passwordInput, "Password must include 8+ chars, uppercase, and a number");
-             return;
-        }
-
-        if (isNameValid && isEmailValid && isPhoneValid && isPasswordValid && isPasswordStrongEnough) {
-            // Save to localStorage
-            const newSubmission = {
-                name: nameInput.value.trim(),
-                email: emailInput.value.trim(),
-                phone: phoneInput.value.trim(),
-                timestamp: new Date().toISOString()
-            };
-
-            let submissions = JSON.parse(localStorage.getItem("submissions")) || [];
-            submissions.push(newSubmission);
-            localStorage.setItem("submissions", JSON.stringify(submissions));
-
-            // Show success message and reset form
-            successMessage.style.display = "block";
-            form.reset();
-            
-            // Clear success states
-            const formGroups = document.querySelectorAll(".form-group");
-            formGroups.forEach(group => group.className = "form-group");
-            passwordStrengthContainer.style.display = "none";
-            
-            // Hide success message after 3 seconds
-            setTimeout(() => {
-                successMessage.style.display = "none";
-            }, 3000);
-        }
+    // Render cards
+    results.forEach((data, index) => {
+      const city = CITIES[index];
+      const currentWeather = data.current_weather;
+      renderCard(city, currentWeather);
     });
-});
+
+    // Update visibility
+    loadingEl.classList.add('hidden');
+    weatherContainerEl.classList.remove('hidden');
+
+  } catch (error) {
+    loadingEl.classList.add('hidden');
+    errorContainerEl.classList.remove('hidden');
+    errorMessageEl.textContent = error.message || 'An error occurred while fetching weather data. Please try again later.';
+    console.error('Weather fetch error:', error);
+  }
+}
+
+function renderCard(city, weatherData) {
+  const codeInfo = getWeatherInfo(weatherData.weathercode);
+  const tempRounded = Math.round(weatherData.temperature);
+  
+  const card = document.createElement('div');
+  card.className = `weather-card ${city.id}`;
+  
+  card.innerHTML = `
+    <h2 class="city-name">${city.name}</h2>
+    <div class="weather-icon">${codeInfo.icon}</div>
+    <div class="temperature">${tempRounded}°C</div>
+    <div class="condition">${codeInfo.description}</div>
+  `;
+  
+  weatherContainerEl.appendChild(card);
+}
+
+// Initial fetch on page load
+fetchWeatherData();
+
+// Retry logic on error
+retryBtn.addEventListener('click', fetchWeatherData);
