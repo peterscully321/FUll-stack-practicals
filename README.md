@@ -1,39 +1,16 @@
-# JavaScript Practice Questions
+# React + Vite
 
-This repository contains solutions to several JavaScript practice problems related to:
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-- Default parameters
-- Logical operators
-- Nullish coalescing operator
-- Debugging
-- Nested loops
-- FizzBuzz problem
+Currently, two official plugins are available:
 
----
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Questions Covered
+## React Compiler
 
-### 1. calculateTotal Function
-Create a function with a default parameter that calculates the total order cost.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-### 2. greetUser Function
-Create a greeting function using a default greeting parameter.
+## Expanding the ESLint configuration
 
-### 3. Default Parameter Behavior
-Understanding how `undefined`, `null`, and empty strings behave with default parameters.
-
-### 4. Logical Operators
-Outputs and explanation of:
-- `||` (OR)
-- `&&` (AND)
-
-### 5. `||` vs `??`
-Understanding the difference between logical OR and nullish coalescing.
-
-### 6. Debugging Code
-Fixing a function where empty strings should not be replaced by default values.
-
-### 7. Nested Loop Pattern
-Printing number combinations using nested loops.
-
-Example Output:
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
